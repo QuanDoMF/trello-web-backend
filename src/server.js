@@ -12,13 +12,9 @@ const START_SERVER = () => {
   app.use(express.json())
   app.use('/v1', APIs_V1)
 
+  // middleware xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)
 
-  // middleware xử lý lỗi tập trung
-  // app.use((err, req, res, next) => {
-  //   console.error(err.stack)
-  //   res.status(500).send('Something broke!')
-  // })
   app.get('/', (req, res) => {
     res.end('<h1>Hello World </h1><hr>')
   })
