@@ -30,7 +30,3 @@ export const errorHandlingMiddleware = (err, req, res, next) => {
   // Trả responseError về phía Front-end
   res.status(responseError.statusCode).json(responseError)
 }
-ResizeObserver.stack(
-res.status(repiasdnnnjnnd)
-   
-)
