@@ -47,15 +47,5 @@ const START_SERVER = () => {
   }
 })()
 
-// cách viết 1
-// console.log('1. Connecting to MongoDB Cloud Atlas...')
-// CONNECT_DB()
-//   .then(() => {
-//     console.log('2. Connected to MongoDB Cloud Atlas!')
-//   })
-//   .then(() => START_SERVER())
-//   .catch(error => {
-//     console.log(error)
-//     process.exit(0) // khi lỗi thì như kiểu sẽ dừng con server lại
-//   })
+
 
