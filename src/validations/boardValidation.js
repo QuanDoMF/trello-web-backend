@@ -1,4 +1,4 @@
-
+ 
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
@@ -11,10 +11,10 @@ const createNew = async (req, res, next) => {
       'string.max': 'Title length must be less than or equal to 5 characters long',
       'string.trim': 'Title must not have leading or trailing whitespace tquandoo'
     }),
-    description: Joi.string().required().min(3).max(250).trim().strict(),
+    description: Joi.string().required().min(3).max(250).trim().strict()
   })
-
   try {
+    // set abortEarly: false để trường hợp có nhiều lỗi validation thì trả về tất cả lỗi
     await correctCondition.validateAsync(req.body, { abortEarly: false }) // abortEarly là validate có bị dừng sớm không
     next()
   }

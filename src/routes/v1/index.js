@@ -2,8 +2,8 @@
 import express from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { boardRoute } from './boardRoute'
-const Router = express.Router()
 
+const Router = express.Router()
 
 // check API_V1 status
 Router.get('/status', (req, res) => {
