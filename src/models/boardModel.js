@@ -22,9 +22,18 @@ const createNew = async (data) => {
     const validData = await validateBeforeCreate(data)
     const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validData)
     return createdBoard
-  } catch(error) { throw new Error(error) }
+  } catch (error) { throw new Error(error) }
 }
 const findOneById = async (id) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({
+      _id: new ObjectId(id) // trong db tự động lưu trường là _id và trả về là dạng ObjectID nên khi tìm cũng là dạng ObjectID
+    })
+    return result
+  } catch (error) { throw new Error(error)}
+}
+
+const getDetails = async (id) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({
       _id: new ObjectId(id) // trong db tự động lưu trường là _id và trả về là dạng ObjectID nên khi tìm cũng là dạng ObjectID
@@ -39,4 +48,5 @@ export const boardModel = {
   BOARD_COLLECTION_SCHEMA,
   createNew,
   findOneById,
+  getDetails
 }
