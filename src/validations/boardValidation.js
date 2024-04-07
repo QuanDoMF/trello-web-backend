@@ -11,7 +11,8 @@ const createNew = async (req, res, next) => {
       'string.max': 'Title length must be less than or equal to 5 characters long',
       'string.trim': 'Title must not have leading or trailing whitespace tquandoo'
     }),
-    description: Joi.string().required().min(3).max(250).trim().strict()
+    description: Joi.string().required().min(3).max(250).trim().strict(),
+    type: Joi.string().valid('public', 'private').required()
   })
   try {
     // set abortEarly: false để trường hợp có nhiều lỗi validation thì trả về tất cả lỗi
