@@ -39,13 +39,23 @@ const findOneById = async (id) => {
       _id: new ObjectId(id) // trong db tự động lưu trường là _id và trả về là dạng ObjectID nên khi tìm cũng là dạng ObjectID
     })
     return result
-  } catch (error) { throw new Error(error)}
+  } catch (error) { throw new Error(error) }
 }
-
+const pushCardOrderIds = async (card) => {
+  try {
+    const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(card.columnId) },
+      { $push: { cardOrderIds: new ObjectId(card._id) } },
+      { returnDocument: 'after' },
+    )
+    return result
+  } catch (error) { throw new Error(error) }
+}
 export const columnModel = {
   COLUMN_COLLECTION_NAME,
   COLUMN_COLLECTION_SCHEMA,
   createNew,
-  findOneById
+  findOneById,
+  pushCardOrderIds
 }
 

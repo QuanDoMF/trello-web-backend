@@ -1,5 +1,5 @@
 import Joi from 'joi'
-import { ObjectId } from 'mongodb'
+import { ObjectId, ReturnDocument } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { BOARD_TYPES } from '~/utils/constants'
@@ -18,6 +18,8 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
 })
+// chỉ ra những fields mà chúng ta không muốn cho phép cập nhật trong hàm update
+const INVALID_UPDATE_FIELDS = ['_id', 'createdAt']
 const validateBeforeCreate = async (data) => {
   return await BOARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
 }
@@ -34,32 +36,67 @@ const findOneById = async (id) => {
       _id: new ObjectId(id) // trong db tự động lưu trường là _id và trả về là dạng ObjectID nên khi tìm cũng là dạng ObjectID
     })
     return result
-  } catch (error) { throw new Error(error)}
+  } catch (error) { throw new Error(error) }
 }
 
 const getDetails = async (id) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
-      { $match: {
-        _id: new ObjectId(id), // điều kiện đúng để tìm là tìm board có ID này và destroy(false) chưa xóa
-        _destroy: false // sau có xóa column thì destroy true thì k query ra được nữa
-      } },
+      {
+        $match: {
+          _id: new ObjectId(id), // điều kiện đúng để tìm là tìm board có ID này và destroy(false) chưa xóa
+          _destroy: false // sau có xóa column thì destroy true thì k query ra được nữa
+        }
+      },
       //đi tìm kiếm
-      { $lookup: {
-        from: columnModel.COLUMN_COLLECTION_NAME,
-        localField: '_id',
-        foreignField : 'boardId',
-        as: 'columns'
-      } },
-      { $lookup: {
-        from: cardModel.CARD_COLLECTION_NAME,
-        localField: '_id',
-        foreignField : 'boardId',
-        as: 'cards'
-      } }
+      {
+        $lookup: {
+          from: columnModel.COLUMN_COLLECTION_NAME,
+          localField: '_id',
+          foreignField: 'boardId',
+          as: 'columns'
+        }
+      },
+      {
+        $lookup: {
+          from: cardModel.CARD_COLLECTION_NAME,
+          localField: '_id',
+          foreignField: 'boardId',
+          as: 'cards'
+        }
+      }
     ]).toArray()
     return result[0] || null
-  } catch (error) { throw new Error(error)}
+  } catch (error) { throw new Error(error) }
+}
+
+const pushColumnOrderIds = async (column) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(column.boardId) },
+      { $push: { columnOrderIds: new ObjectId(column._id) } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
+const update = async (boardId, updateData) => {
+  try {
+    // lọc các field mà chúng ta không muốn cập nhật linh tinh
+    Object.keys(updateData).forEach(fieldName => {
+      if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
+        delete updateData[fieldName]
+      }
+    })
+
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(boardId) },
+      { $set: updateData },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) { throw new Error(error) }
 }
 
 export const boardModel = {
@@ -67,5 +104,7 @@ export const boardModel = {
   BOARD_COLLECTION_SCHEMA,
   createNew,
   findOneById,
-  getDetails
+  getDetails,
+  pushColumnOrderIds,
+  update
 }

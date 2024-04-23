@@ -11,12 +11,12 @@ import { env } from '~/config/environment'
 let trelloDatabaseInstance = null
 
 // khởi tạo một đối tượng mongoClientInstance để connect tới mongoDB
-const mongoClientInstance = new MongoClient (env.MONGODB_URI, {
+const mongoClientInstance = new MongoClient(env.MONGODB_URI, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-}
+  }
 })
 
 // function kết nối tới databse
