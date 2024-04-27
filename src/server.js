@@ -23,10 +23,22 @@ const START_SERVER = () => {
   app.get('/', (req, res) => {
     res.end('<h1>Hello World </h1><hr>')
   })
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
-    // eslint-disable-next-line no-console
-    console.log(`3. Hi ${env.AUTHOR}, Back-end Server is running successfully at Host: ${env.APP_HOST} and Port: ${env.APP_PORT}`)
-  })
+
+  if (env.BUILD_MODE === 'production') {
+    // môi trường production
+    app.listen(process.env.PORT, () => {
+      // eslint-disable-next-line no-console
+      console.log(`3.Production: Hi ${env.AUTHOR}, Back-end Server is running successfully at Host: ${env.APP_HOST} at Port: ${process.env.PORT}`)
+    })
+  } else {
+    // môi trường local dev
+    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+      // eslint-disable-next-line no-console
+      console.log(`3.Local Dev: Hi ${env.AUTHOR}, Back-end Server is running successfully at Host: ${env.LOCAL_DEV_APP_HOST} and Port: ${env.LOCAL_DEV_APP_PORT}`)
+    })
+  }
+
+
   exitHook(() => {
     console.log('4. Server is shutting down...')
     CLOSE_DB()
