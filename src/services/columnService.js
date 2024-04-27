@@ -5,6 +5,7 @@ import { columnModel } from '~/models/columnModel'
 import { StatusCodes } from 'http-status-codes'
 import { cloneDeep } from 'lodash'
 import { boardModel } from '~/models/boardModel'
+import { cardModel } from '~/models/cardModel'
 const createNew = async (reqBody) => {
   try {
     const newColumn = {
@@ -37,8 +38,34 @@ const update = async (columnId, reqBody) => {
     throw error
   }
 }
+const deleteItem = async (columnId) => {
+  try {
+    const targetColumn = await columnModel.findOneById(columnId)
+
+    if (!targetColumn) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Column not Found!')
+    }
+
+    // xóa column
+    await columnModel.deleteOneById(columnId)
+
+    // xóa toàn bộ card thuộc Column trên
+    await cardModel.deleteManeByColumnId(columnId)
+
+    // xoá columnOrderIds trong collection boards
+    await boardModel.pullColumnOrderIds(targetColumn)
+
+    return {
+      deleteResult: 'Column and its Cards deleted successfully!'
+    }
+  }
+  catch (error) {
+    throw error
+  }
+}
 
 export const columnService = {
   createNew,
-  update
+  update,
+  deleteItem
 }

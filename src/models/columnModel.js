@@ -48,7 +48,7 @@ const pushCardOrderIds = async (card) => {
     const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(card.columnId) },
       { $push: { cardOrderIds: new ObjectId(card._id) } },
-      { returnDocument: 'after' },
+      { returnDocument: 'after' }
     )
     return result
   } catch (error) { throw new Error(error) }
@@ -74,12 +74,21 @@ const update = async (columnId, updateData) => {
     return result
   } catch (error) { throw new Error(error) }
 }
+const deleteOneById = async (columnId) => {
+  try {
+    const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).deleteOne({
+      _id: new ObjectId(columnId) // trong db tự động lưu trường là _id và trả về là dạng ObjectID nên khi tìm cũng là dạng ObjectID
+    })
+    return result
+  } catch (error) { throw new Error(error) }
+}
 export const columnModel = {
   COLUMN_COLLECTION_NAME,
   COLUMN_COLLECTION_SCHEMA,
   createNew,
   findOneById,
   pushCardOrderIds,
-  update
+  update,
+  deleteOneById
 }
 
