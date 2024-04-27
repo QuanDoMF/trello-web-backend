@@ -28,7 +28,7 @@ const START_SERVER = () => {
     // môi trường production
     app.listen(process.env.PORT, () => {
       // eslint-disable-next-line no-console
-      console.log(`3.Production: Hi ${env.AUTHOR}, Back-end Server is running successfully at Host: ${env.APP_HOST} at Port: ${process.env.PORT}`)
+      console.log(`3.Production: Hi ${env.AUTHOR}, Back-end Server is running successfully at Port: ${process.env.PORT}`)
     })
   } else {
     // môi trường local dev
