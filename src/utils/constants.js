@@ -1,5 +1,7 @@
 
 // danh sách các domain được phép truy cập tới tài nguyên server
+import { env } from '~/config/environment'
+
 export const WHITELIST_DOMAINS = [
 
   // không cần localhost nữa vì ở file config/cors đã luôn cho phép pass qua
@@ -10,5 +12,7 @@ export const WHITELIST_DOMAINS = [
 
 export const BOARD_TYPES = {
   PUBLIC: 'public',
-  PRIVATE: 'private',
+  PRIVATE: 'private'
 }
+
+export const WEBSITE_DOMAIN = (env.BUILD_MODE === 'production' ? env.WEBSITE_DOMAIN_PROD : env.WEBSITE_DOMAIN_DEV)
