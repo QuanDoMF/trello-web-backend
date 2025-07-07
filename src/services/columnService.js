@@ -41,8 +41,6 @@ const update = async (columnId, reqBody) => {
 const deleteItem = async (columnId) => {
   try {
     const targetColumn = await columnModel.findOneById(columnId)
-    console.log('🚀 ~ deleteItem ~ targetColumn:', targetColumn)
-    console.log('Han')
     if (!targetColumn) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Column not Found!')
     }
