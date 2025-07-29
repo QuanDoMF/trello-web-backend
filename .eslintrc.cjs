@@ -13,7 +13,7 @@ module.exports = {
   rules: {
     // Common
     'no-useless-catch': 0,
-    'no-console': 1,
+    // 'no-console': 1,
     'no-extra-boolean-cast': 0,
     'no-lonely-if': 1,
     'no-unused-vars': 1,

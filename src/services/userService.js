@@ -9,6 +9,8 @@ import { WEBSITE_DOMAIN } from '~/utils/constants'
 import { BrevoProvider } from '~/providers/BrevoProvider'
 import { env } from '~/config/environment'
 import { JwtProvider } from '~/providers/JwtProvider'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
+
 const createNew = async (reqBody) => {
   try {
     // Kiểm tra email tồn tại chưa
@@ -136,9 +138,46 @@ const refreshToken = async (clientRefreshToken) => {
   }
 }
 
+const update = async (userId, reqBody, userAvatarFile) => {
+  try {
+    const existedUser = await userModel.findOneById(userId)
+    if (!existedUser) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Account not found!')
+    }
+    if (!existedUser.isActive) {
+      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your account is not active!')
+    }
+    // khởi tạo kết quả update user
+    let updatedUser = {}
+    if (reqBody.current_password && reqBody.new_password) {
+      if (!bycrypt.compareSync(reqBody.current_password, existedUser.password)) {
+        throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your current password is incorrect!')
+      }
+      updatedUser = await userModel.update(userId, {
+        password: bycrypt.hashSync(reqBody.new_password, 8)
+      })
+    } else if (userAvatarFile) {
+      // trường hợp update avatar
+      const updateResult = await CloudinaryProvider.streamUpload(userAvatarFile.buffer, 'users')
+
+      // Lưu lại url của cái file ảnh vào database
+      updatedUser = await userModel.update(userId, {
+        avatar: updateResult.secure_url
+      })
+    } else {
+      // trường hợp update thông tin chung
+      updatedUser = await userModel.update(userId, reqBody)
+    }
+    return pickUser(updatedUser)
+  } catch (error) {
+    throw error
+  }
+}
+
 export const userService = {
   createNew,
   verifyAccount,
   login,
-  refreshToken
+  refreshToken,
+  update
 }
