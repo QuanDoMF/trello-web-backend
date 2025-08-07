@@ -16,7 +16,7 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required(),
   columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
   // những admin của board
-  ownersIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
+  ownerIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
   // những member của board
   memberIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
@@ -28,10 +28,14 @@ const INVALID_UPDATE_FIELDS = ['_id', 'createdAt']
 const validateBeforeCreate = async (data) => {
   return await BOARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
 }
-const createNew = async (data) => {
+const createNew = async (userId, data) => {
   try {
     const validData = await validateBeforeCreate(data)
-    const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validData)
+    const newBoardToAdd = {
+      ...validData,
+      ownerIds: [new ObjectId(userId)]
+    }
+    const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(newBoardToAdd)
     return createdBoard
   } catch (error) { throw new Error(error) }
 }
@@ -44,14 +48,23 @@ const findOneById = async (boardId) => {
   } catch (error) { throw new Error(error) }
 }
 
-const getDetails = async (id) => {
+const getDetails = async (userId, boardId) => {
   try {
+    const queryConditions = [
+      // Điều kiện 01: Board chưa bị xóa
+      { _id: new ObjectId(boardId) },
+      { _destroy: false },
+      // Điều kiện 02: Board thuộc user đang đăng nhập (user đang thuộc id là owner của board hoặc member)
+      {
+        $or: [
+          { ownerIds: { $all: [new ObjectId(userId)] } },
+          { memberIds: { $all: [new ObjectId(userId)] } }
+        ]
+      }
+    ]
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
       {
-        $match: {
-          _id: new ObjectId(id), // điều kiện đúng để tìm là tìm board có ID này và destroy(false) chưa xóa
-          _destroy: false // sau có xóa column thì destroy true thì k query ra được nữa
-        }
+        $match: { $and: queryConditions }
       },
       //đi tìm kiếm
       {
