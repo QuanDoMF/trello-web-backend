@@ -25,7 +25,7 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   _destroy: Joi.boolean().default(false)
 })
 
-const INVALID_UPDATE_FIELDS = ['_id', 'email', 'password', 'createdAt']
+const INVALID_UPDATE_FIELDS = ['_id', 'email', 'createdAt', 'current_password', 'new_password']
 
 const validateBeforeCreate = async (data) => {
   return await USER_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })

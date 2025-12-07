@@ -165,8 +165,11 @@ const update = async (userId, reqBody, userAvatarFile) => {
         avatar: updateResult.secure_url
       })
     } else {
+      // Loại bỏ các trường password-related để đảm bảo an toàn
+      // eslint-disable-next-line no-unused-vars
+      const { current_password, new_password, ...safeUpdateData } = reqBody
       // trường hợp update thông tin chung
-      updatedUser = await userModel.update(userId, reqBody)
+      updatedUser = await userModel.update(userId, safeUpdateData)
     }
     return pickUser(updatedUser)
   } catch (error) {
