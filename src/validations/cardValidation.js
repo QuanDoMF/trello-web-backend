@@ -23,7 +23,12 @@ const createNew = async (req, res, next) => {
 const updateCard = async (req, res, next) => {
   const correctCondition = Joi.object({
     title: Joi.string().optional().min(3).max(50).trim().strict(),
-    description: Joi.string().optional()
+    description: Joi.string().optional(),
+    commentToAdd: Joi.object({
+      userAvatar: Joi.string().optional(),
+      userDisplayName: Joi.string().optional(),
+      content: Joi.string().required().trim()
+    }).optional()
   })
 
   try {
