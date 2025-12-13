@@ -27,12 +27,12 @@ const createNewBoardInvitation = async (reqBody, inviterId) => {
             type: INVITATION_TYPES.BOARD_INVITATION,
             boardInvitation: {
                 boardId: board._id.toString(),
-                status: BOARD_INVITATION_STATUS.PENDING,
+                status: BOARD_INVITATION_STATUS.PENDING
             }
         }
         // Gọi sang Model để lưu vào DB
         const createdInvitation = await invitationModel.createNewBoardInvitation(newInvitationData)
-        const getInvitation = await invitationModel.findOneById(createdInvitation.insertedId.toString())
+        const getInvitation = await invitationModel.findOneById(createdInvitation.insertedId)
 
         // Ngoài thông tin của cái board invitation mới tạo thì tra về đủ ca luôn board, inviter, invitee cho FE thoải mái xử lý.
         const resInvitation = {
