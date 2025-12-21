@@ -10,6 +10,16 @@ const createNewBoardInvitation = async (req, res, next) => {
         res.status(StatusCodes.CREATED).json(resInvitation)
     } catch (error) { next(error) }
 }
+
+const getInvitations = async (req, res, next) => {
+    try {
+        const userId = req.jwtDecoded._id
+        const resInvitations = await invitationService.getInvitations(userId)
+        res.status(StatusCodes.CREATED).json(resInvitations)
+    } catch (error) { next(error) }
+}
+
 export const invitationController = {
-    createNewBoardInvitation
+    createNewBoardInvitation,
+    getInvitations
 }
