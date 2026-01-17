@@ -1,8 +1,8 @@
 /* eslint-disable no-useless-catch */
-import { boardModel } from '~/models/boardModel'
 import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
 import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
+import { CARD_MEMBER_ACTIONS } from '~/utils/constants'
 const createNew = async (reqBody) => {
   try {
     const newCard = {
@@ -31,10 +31,11 @@ const updateCard = async (cardId, reqBody, cardCoverFile, userInfor) => {
     let updatedCard = {}
 
     if (cardCoverFile) {
+      // Case 1: Update card cover image
       const updateResult = await CloudinaryProvider.streamUpload(cardCoverFile.buffer, 'cards')
       updatedCard = await cardModel.update(cardId, { cover: updateResult.secure_url })
     } else if (updateData.commentToAdd) {
-      // tạo dữ liệu comment dể thêm vào database, cần bổ sung thêm những field cần thiết
+      // Case 2: Add new comment to card
       const commentData = {
         ...updateData.commentToAdd,
         userId: userInfor._id,
@@ -42,8 +43,18 @@ const updateCard = async (cardId, reqBody, cardCoverFile, userInfor) => {
         commentedAt: Date.now()
       }
       updatedCard = await cardModel.unshiftNewComment(cardId, commentData)
-    }
-    else {
+    } else if (updateData.incomingMemberInfo) {
+      // Case 3: Add or Remove member from card
+      const { userId, action } = updateData.incomingMemberInfo
+
+      if (action === CARD_MEMBER_ACTIONS.ADD) {
+        updatedCard = await cardModel.pushMemberIds(cardId, userId)
+      }
+      if (action === CARD_MEMBER_ACTIONS.REMOVE) {
+        updatedCard = await cardModel.pullMemberIds(cardId, userId)
+      }
+    } else {
+      // Case 4: General update (title, description, etc.)
       updatedCard = await cardModel.update(cardId, updateData)
     }
 

@@ -101,6 +101,29 @@ const unshiftNewComment = async (cardId, commentData) => {
     return result
   } catch (error) { throw new Error(error) }
 }
+
+const pushMemberIds = async (cardId, userId) => {
+  try {
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(cardId) },
+      { $addToSet: { memberIds: new ObjectId(userId) } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
+const pullMemberIds = async (cardId, userId) => {
+  try {
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(cardId) },
+      { $pull: { memberIds: new ObjectId(userId) } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
@@ -108,5 +131,7 @@ export const cardModel = {
   findOneById,
   update,
   deleteManeByColumnId,
-  unshiftNewComment
+  unshiftNewComment,
+  pushMemberIds,
+  pullMemberIds
 }

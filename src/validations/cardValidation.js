@@ -2,6 +2,7 @@ import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { CARD_MEMBER_ACTIONS } from '~/utils/constants'
 
 
 const createNew = async (req, res, next) => {
@@ -28,6 +29,13 @@ const updateCard = async (req, res, next) => {
       userAvatar: Joi.string().optional(),
       userDisplayName: Joi.string().optional(),
       content: Joi.string().required().trim()
+    }).optional(),
+    incomingMemberInfo: Joi.object({
+      userId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+      action: Joi.string().required().valid(
+        CARD_MEMBER_ACTIONS.ADD,
+        CARD_MEMBER_ACTIONS.REMOVE
+      )
     }).optional()
   })
 
